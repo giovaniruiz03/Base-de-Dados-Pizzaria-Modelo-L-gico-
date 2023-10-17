@@ -1,0 +1,144 @@
+-- Tabelas criadas diretamente no EER Diagrama - SQL Workbench
+/*
+CREATE TABLE `embalagem` (
+  `material` varchar(30) NOT NULL,
+  `tamanho` varchar(20) NOT NULL,
+  `preco` decimal(9,2) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `ingredientes` (
+  `id` int NOT NULL,
+  `descricao` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `pizza` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sabor` varchar(45) NOT NULL,
+  `preco` decimal(9,2) NOT NULL,
+  `descricao` varchar(60) DEFAULT NULL,
+  `tamanho` varchar(20) NOT NULL,
+  `ingredientes` varchar(80) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `pizza-ingredientes` (
+  `id_pizza` int NOT NULL,
+  `id_ingredientes` int NOT NULL,
+  PRIMARY KEY (`id_pizza`,`id_ingredientes`),
+  KEY `id_ingredientes_idx` (`id_ingredientes`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `pizza-pizzaiolo` (
+  `id_pizza` int NOT NULL,
+  `id_pizzaiolo` int NOT NULL,
+  PRIMARY KEY (`id_pizza`,`id_pizzaiolo`),
+  KEY `id_pizzaiolo_idx` (`id_pizzaiolo`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `pizzaiolo` (
+  `id` int NOT NULL,
+  `nome` varchar(50) NOT NULL,
+  `salario` decimal(9,2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+CREATE TABLE `receita` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `instrucoes` varchar(80) NOT NULL,
+  `autor` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+-- Inserir dados na tabela 'embalagem'
+INSERT INTO embalagem (material, tamanho, preco) VALUES 
+('Papelão', 'Pequeno', 2.50),
+('Papelão', 'Médio', 3.00),
+('Papelão', 'Grande', 4.50);
+*/
+
+-- Inserir dados na tabela 'ingredientes'
+INSERT INTO ingredientes (id, descricao) VALUES 
+(1, 'Queijo'),
+(2, 'Tomate'),
+(3, 'Pepperoni'),
+(4, 'Cogumelos'),
+(5, 'Azeitonas'),
+(6, 'Presunto'),
+(7, 'Cebola'),
+(8, 'Pimentão'),
+(9, 'Alho'),
+(10, 'Manjericão');
+
+-- Inserir dados na tabela 'pizza'
+INSERT INTO pizza (sabor, preco, descricao, tamanho, ingredientes) VALUES 
+('Margherita', 8.99, 'Clássica pizza italiana com molho de tomate, queijo e manjericão.', 'Média', '1,2,10'),
+('Pepperoni', 10.99, 'Pizza de pepperoni e queijo derretido.', 'Grande', '1,3'),
+('Vegetariana', 9.49, 'Pizza com uma variedade de legumes frescos.', 'Média', '2,4,5,8,9,10'),
+('Presunto e Cogumelos', 10.49, 'Pizza com presunto, cogumelos e queijo.', 'Grande', '1,4,6');
+
+-- Inserir dados na tabela 'pizza-ingredientes'
+INSERT INTO `pizza-ingredientes` (id_pizza, id_ingredientes) VALUES 
+(1, 1),
+(1, 2),
+(1, 10),
+(2, 1),
+(2, 3),
+(3, 2),
+(3, 4),
+(3, 5),
+(3, 8),
+(3, 9),
+(3, 10),
+(4, 1),
+(4, 4),
+(4, 6);
+
+-- Inserir dados na tabela 'pizza-pizzaiolo'
+INSERT INTO `pizza-pizzaiolo` (id_pizza, id_pizzaiolo) VALUES 
+(1, 1),
+(2, 1),
+(2, 2),
+(3, 1),
+(4, 2);
+
+-- Inserir dados na tabela 'pizzaiolo'
+INSERT INTO pizzaiolo (id, nome, salario) VALUES 
+(1, 'João Silva', 1500.00),
+(2, 'Ana Oliveira', 1600.00);
+
+-- Inserir dados na tabela 'receita'
+INSERT INTO receita (instrucoes, autor) VALUES 
+('Pré-aqueça o forno a 200°C. Estique a massa e adicione o molho de tomate, queijo e manjericão. Asse por 15 minutos.', 'Chef Maria'),
+('Corte o pepperoni em rodelas. Cubra a massa com molho de tomate, queijo e pepperoni. Asse a 220°C por 20 minutos.', 'Chef Carlos'),
+('Pique os vegetais em pedaços pequenos. Adicione molho de tomate, queijo e vegetais à massa. Asse a 180°C por 18 minutos.', 'Chef Sofia'),
+('Fatie o presunto e os cogumelos. Coloque molho de tomate, queijo, presunto e cogumelos na massa. Asse a 200°C por 22 minutos.', 'Chef André');
+
+
+-- Crie um relatório com todas as pizzas e os pizzaiolos aptos a produzi-las;
+SELECT p.id AS id_pizza, p.sabor, p.tamanho, p.preco, pi.id_pizzaiolo, pz.nome AS nome_pizzaiolo
+FROM pizza AS p
+JOIN `pizza-pizzaiolo` AS pi ON p.id = pi.id_pizza
+JOIN pizzaiolo AS pz ON pi.id_pizzaiolo = pz.id;
+
+
+-- Crie um relatório com todas as pizzas e seus ingredientes;
+SELECT p.id AS id_pizza, p.sabor, i.descricao AS ingrediente
+FROM pizza AS p
+JOIN `pizza-ingredientes` AS pi ON p.id = pi.id_pizza
+JOIN ingredientes AS i ON pi.id_ingredientes = i.id;
+
+
+-- Crie um relatório com todos os ingredientes e as pizzas onde são utilizados;
+SELECT i.id AS id_ingrediente, i.descricao, p.sabor AS pizza
+FROM ingredientes AS i
+JOIN `pizza-ingredientes` AS pi ON i.id = pi.id_ingredientes
+JOIN pizza AS p ON pi.id_pizza = p.id;
+
+-- Crie um relatório com os sabores de todas as pizzas, o nome dos pizzaiolos que as fazem e as instruções para produzi-las;
+SELECT p.sabor AS sabor_pizza, pi.nome AS nome_pizzaiolo, r.instrucoes
+FROM pizza AS p
+JOIN `pizza-pizzaiolo` AS pp ON p.id = pp.id_pizza
+JOIN pizzaiolo AS pi ON pp.id_pizzaiolo = pi.id
+JOIN receita AS r ON p.id = r.id;
